@@ -6,7 +6,7 @@
 
 class Sales_item {
 friend std::istream& operator>>(std::istream&, Sales_item&);
-friend std::ostream& operator<<(std::ostream&, Sales_item&);
+friend std::ostream& operator<<(std::ostream&, const Sales_item&);
 friend bool operator<(const Sales_item&, const Sales_item&);
 friend bool operator==(const Sales_item&, const Sales_item&);
 public:
@@ -24,8 +24,39 @@ private:
     double revenue = 0.0;
 };
 
-std::istream& operator>>(std::istream& in, Sales_item& s) {
+Sales_item& Sales_item::operator+= (const Sales_item& rhs) {
+    units_sold += rhs.units_sold;
+    revenue += rhs.revenue;
+    return *this;
+}
 
+Sales_item operator+(const Sales_item& lhs, const Sales_item& rhs) {
+    Sales_item ret(lhs);
+    ret += rhs;
+    return ret;
+}
+
+std::istream& operator>>(std::istream& in, Sales_item& s) {
+    double price;
+    in >> s.bookNo >> s.units_sold >> price;
+    // if inputs succeeded
+    if (in) 
+        s.revenue = s.units_sold * price;
+    else 
+        s = Sales_item(); // input failed: reset object to default state
+    return in;
+}
+
+std::ostream& operator<<(std::ostream& out, const Sales_item& s) {
+    out << s.isbn() << " " << s.units_sold << " " << s.revenue << " " << s.avg_price();
+    return out;
+}
+
+double Sales_item::avg_price() const {
+    if (units_sold)
+        return revenue/units_sold;
+    else 
+        return 0;
 }
 
 #endif
