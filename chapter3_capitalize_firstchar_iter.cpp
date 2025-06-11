@@ -1,4 +1,4 @@
-// Capitalize 1st word in string using 'iterator'
+// Capitalize 1st character in string using 'iterator'
 #include <iostream>
 #include <string>
 
@@ -8,9 +8,10 @@ using std::cout;
 using std::endl;
 
 int main() {
-    string s("Some string");
+    string s("some string");
     // make sure s is not empty
-    for (auto it = s.begin(); it!=s.end() && !isspace(*it); it++) {
+    if (s.begin() != s.end()) {
+        auto it = s.begin();
         *it = toupper(*it);
     }
     // print 
