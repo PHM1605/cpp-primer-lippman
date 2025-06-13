@@ -1,19 +1,20 @@
-// Capitalize 1st word in string using 'iterator'
+// Histogram of student grades, bin-size of 10 (the perfect grade 100 is one group)
+// Input: typing '42 65 95 100 39 67 95 76 88 76 83 92 76 93'
+// Output: 0 0 0 1 1 0 2 3 2 4 1
 #include <iostream>
-#include <string>
 
-using std::string;
 using std::cin;
 using std::cout;
 using std::endl;
 
 int main() {
-    string s("Some string");
-    // make sure s is not empty
-    for (auto it = s.begin(); it!=s.end() && !isspace(*it); it++) {
-        *it = toupper(*it);
+    unsigned scores[11] = {};
+    unsigned grade;
+    while(cin >> grade) {
+        if (grade <= 100) 
+            ++scores[grade/10];
     }
-    // print 
-    cout << s << endl;
+    // display the histogram
+    
     return 0;
 }
