@@ -3,25 +3,15 @@
 
 using namespace std;
 
-void error_msg(initializer_list<string> il) {
-	for (auto beg=il.begin(); beg!=il.end(); beg++) {
-		cout << *beg << " ";
-	}
-	cout << endl;
+char& get_val(string& str, string::size_type ix) {
+	return str[ix];
 }
 
-int main (int argc, char *argv[]) {
+int main() {
+	string s("a value");
+	cout << s << endl;
+	get_val(s,0) = 'A';
+	cout << s <<endl;
 	
-	string expected = "this";
-	string actual = "thit";
-
-	if (expected != actual) {
-		error_msg({"functionX", expected, actual});
-	} else {
-		error_msg({"functionX", "okay"});
-	}
-
 	return 0;
 }
-
-
