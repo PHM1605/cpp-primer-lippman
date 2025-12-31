@@ -1,10 +1,17 @@
 #pragma once 
+#include <iostream>
 #include <string>
 
 using namespace std;
 
 struct Sales_data {
-    // new members
+    // constructor
+    Sales_data() = default;
+    Sales_data(const string &s): bookNo(s) {}
+    Sales_data(const string &s, unsigned n, double p): bookNo(s), units_sold(n), revenue(p*n) {}
+    Sales_data(istream &);
+    
+    // operations 
     string isbn() const { return bookNo; }
     Sales_data& combine(const Sales_data&);
     double avg_price() const;

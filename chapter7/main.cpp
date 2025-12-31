@@ -1,3 +1,4 @@
+// g++ main.cpp Sales_data.cpp -o app
 // print the sales of all books with different ISBNs
 // assuming sales are sorted in ISBN order
 #include <iostream>
