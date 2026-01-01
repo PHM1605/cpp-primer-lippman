@@ -4,7 +4,13 @@
 
 using namespace std;
 
-struct Sales_data {
+class Sales_data {
+// outer class friend define
+friend Sales_data add(const Sales_data&, const Sales_data&);
+friend istream& read(istream&, Sales_data&);
+friend ostream& print(ostream&, const Sales_data&);
+
+public:
     // constructor
     Sales_data() = default;
     Sales_data(const string &s): bookNo(s) {}
@@ -14,8 +20,9 @@ struct Sales_data {
     // operations 
     string isbn() const { return bookNo; }
     Sales_data& combine(const Sales_data&);
-    double avg_price() const;
 
+private:
+    inline double avg_price() const { return units_sold ? revenue/units_sold : 0; }
     // data members
     string bookNo;
     unsigned units_sold = 0;

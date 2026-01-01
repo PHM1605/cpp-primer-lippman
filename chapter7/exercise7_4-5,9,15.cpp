@@ -7,9 +7,11 @@
 using namespace std;
 
 struct Person {
-  string name;
-  string address;
+// friends declarations
+  friend istream& read(istream&, Person& person);
+  friend ostream& print(ostream&, const Person&);
 
+public:
   // constructors
   Person() = default;
   Person(const string& _name, const string& _address):
@@ -17,6 +19,10 @@ struct Person {
 
   string get_name() const { return name; }
   string get_address() const { return address; }
+
+private:
+  string name;
+  string address;
 };
 
 istream& read(istream& is, Person& person) {
