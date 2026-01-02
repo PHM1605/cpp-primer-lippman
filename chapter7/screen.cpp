@@ -6,7 +6,22 @@
 
 using namespace std;
  
+// Window to control Screen
+class Window_mgr {
+public:
+  using ScreenIndex = vector<Screen>::size_type;
+  void clear(ScreenIndex); // this function uses Screen, hence DECLARED-ONLY here, defined later after Screen
+  // add a Screen to its collection and return <index>
+  ScreenIndex addScreen(const Screen&);
+
+private:
+  vector<Screen> screens{ Screen(24,80, ' ')};
+};
+
 class Screen {
+// friend class to modify Screen from outside
+friend void Window_mgr::clear(ScreenIndex); 
+
 public:
   typedef string::size_type pos;
   // using pos = string::size_type;
@@ -38,6 +53,8 @@ public:
     do_display(os);
     return *this; // const Screen object
   }
+  // size
+  pos Screen::size() const;
 
 private:
   pos cursor = 0; // 1 number accessing whole screen; IN-CLASS INITIALIZER for <cursor>
@@ -70,10 +87,20 @@ inline Screen& Screen::set(pos r, pos col, char ch) {
   return *this;
 }
 
-class Window_mgr {
-private:
-  vector<Screen> screens{ Screen(24,80, ' ')};
-};
+Screen::pos Screen::size() const {
+  return height * width;
+}
+
+void Window_mgr::clear(ScreenIndex i) {
+  // which Screen we want to clear
+  Screen &s = screens[i];
+  s.contents = string(s.height*s.width, ' ');
+}
+
+Window_mgr::ScreenIndex Window_mgr::addScreen(const Screen& s) {
+  screens.push_back(s);
+  return screens.size() - 1;
+}
 
 int main() {
   Screen myscreen = Screen(800, 600, 'x');
