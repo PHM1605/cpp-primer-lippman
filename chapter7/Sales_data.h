@@ -14,8 +14,8 @@ public:
     // constructor
     Sales_data() = default;
     Sales_data(const string &s): bookNo(s) {}
-    Sales_data(const string &s, unsigned n, double p): bookNo(s), units_sold(n), revenue(p*n) {}
-    Sales_data(istream &);
+    explicit Sales_data(const string &s, unsigned n, double p): bookNo(s), units_sold(n), revenue(p*n) {}
+    explicit Sales_data(istream &);
     
     // operations 
     string isbn() const { return bookNo; }
