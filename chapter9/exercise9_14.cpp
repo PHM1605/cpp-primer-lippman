@@ -7,5 +7,12 @@
 using namespace std;
 
 int main() {
+  list<char*> cstrs = {"alpha", "beta", "gamma"};
+  vector<string> vstrs;
+  vstrs.assign(cstrs.begin(), cstrs.end());
+  for (auto& str : vstrs) {
+    cout << str << endl;
+  }
+
   return 0;
 }
