@@ -1,4 +1,5 @@
 // Partition a vector of words, print words with >=5 chars WITH 5 IS A PARAMETER => using Lambda
+// - using <partition> instead of <find_if>
 #include <iostream>
 #include <vector>
 #include <algorithm>
@@ -29,18 +30,19 @@ void biggies(vector<string>& words, vector<string>::size_type sz) {
     }
   );
   // find ITER TO 1st element in <words> that has at least <sz> characters
-  auto wc = find_if(
+  auto wc = partition(
     words.begin(), words.end(),
-    [sz](const string& a) {
-      return a.size() >= sz;
+    [sz](const string& input_str) {
+      return input_str.size() >= sz;
     }
   );
+
   // count number of elements with >=5 chars
-  auto count = words.end() - wc;
+  auto count = wc - words.begin();
   cout << count << " " << make_plural(count, "word", "s") << " of length " << sz << " or longer" << endl;
   // print >=5 chars words with <for_each> which uses Lambda too
   for_each(
-    wc, words.end(),
+    words.begin(), wc,
     [](const string& s) {
       cout << s << " ";
     }
