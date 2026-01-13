@@ -29,7 +29,8 @@ void biggies(vector<string>& words, vector<string>::size_type sz) {
       return a.size() < b.size();
     }
   );
-  // find ITER TO 1st element in <words> that has at least <sz> characters
+  // 1st part: True with that predicate; 2nd part: False with that predicate
+  // return => pointer ONE-PASS the 1st part
   auto wc = partition(
     words.begin(), words.end(),
     [sz](const string& input_str) {
