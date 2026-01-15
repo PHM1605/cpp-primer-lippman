@@ -20,7 +20,7 @@ void elimDups(vector<string>& words) {
   sort(words.begin(), words.end()); 
   print_vec(words);
 
-  // put unique portion at the end; duplicated entries at the end
+  // put unique portion at start; duplicated entries at end
   // return iterator one-pass-unique-part
   // fox/jumps/over/quick/red/slow/the/turtle/???/???
   auto end_unique = unique(words.begin(), words.end());
