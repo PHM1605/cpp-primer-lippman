@@ -1,5 +1,5 @@
 // Word counting program. Using <map> and <set>
-// typing: "This is a test file to test word count. What is this?"
+// typing: "this is a test file to test word count what is this"
 #include <set>
 #include <map>
 #include <iostream>
