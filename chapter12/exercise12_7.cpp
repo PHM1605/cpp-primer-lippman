@@ -1,25 +1,25 @@
 // Write a function that returns a dynamically allocated vector of ints
 // Pass that vector to a function that reads <cin> to give values
 // Pass that vector to another function to print values
-// (remember to delete properly)
+// NOTE: using <shared_ptr>
 #include <memory>
 #include <iostream>
 #include <vector>
 
 using namespace std;
 
-vector<int>* alloc_vi() {
-  return new vector<int>;
+shared_ptr<vector<int>> alloc_vi() {
+  return make_shared<vector<int>>();
 }
 
-void read_vector(vector<int>* v) {
+void read_vector(shared_ptr<vector<int>> v) {
   int x;
   while(cin >> x) {
     v->push_back(x);
   }
 }
 
-void print_vector(vector<int>* v) {
+void print_vector(shared_ptr<vector<int>> v) {
   for(int x: *v) {
     cout << x << " ";
   }
@@ -27,11 +27,9 @@ void print_vector(vector<int>* v) {
 }
 
 int main() {
-  vector<int>* v = alloc_vi();
+  shared_ptr<vector<int>> v = alloc_vi();
   read_vector(v);
   print_vector(v);
-  // avoid memory leak
-  delete v;
 
   return 0;
 }
