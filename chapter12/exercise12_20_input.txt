@@ -1,0 +1,3 @@
+this is a test file
+try read line by line
+this is file end.
