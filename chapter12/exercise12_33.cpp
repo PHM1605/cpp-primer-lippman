@@ -2,6 +2,8 @@
 // 1. number of occurences
 // 2. which lineS and print those lines
 // ==> type "elements" to search that word in <exercise12_30_input.txt>
+// NOTE: add <begin()> and <end()> that return <set-iterator>s of <lines>
+// ... add <add_file()> that returns a <shared_ptr> to the file in <QueryResult>
 #include <iostream>
 #include <fstream>
 #include <sstream>

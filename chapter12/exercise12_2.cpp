@@ -24,7 +24,7 @@ public:
 
 private:
   shared_ptr<vector<string>> data;
-  // thwos <msg> if data[i] isn't valid
+  // throw <msg> if data[i] isn't valid
   void check(size_type i, const string& msg) const;
 };
 
