@@ -2,7 +2,7 @@
 // 1. number of occurences
 // 2. which lineS and print those lines
 // ==> type "elements" to search that word in <exercise12_30_input.txt>
-// NOTE: add <begin()> and <end()> that return <set-iterator>s of <lines>
+// NOTE: add to <QueryResult> the <begin()> and <end()> that return <set-iterator>s of <lines>
 // ... add <add_file()> that returns a <shared_ptr> to the file in <QueryResult>
 #include <iostream>
 #include <fstream>
@@ -35,6 +35,10 @@ public:
   // Constructor
   QueryResult(string s, shared_ptr<set<size_t>> p, shared_ptr<vector<string>> f):
     sought(s), lines(p), file(f) {}
+
+  set<size_t>::iterator begin();
+  set<size_t>::iterator end();
+  shared_ptr<vector<string>> get_file();
 
 private:
   string sought; // "element"...
@@ -87,17 +91,29 @@ QueryResult TextQuery::query(const string& sought) const {
 void runQueries(ifstream& infile) {
   // parse the .txt file
   TextQuery tq(infile);
-  // interact with user to get word e.g. "element"
-  while(true) {
-    cout << "enter the word to look for, or q to quit: ";
-    string inp_word;
-    if (!(cin >> inp_word) || inp_word=="q")
-      break;
-    print(cout, tq.query(inp_word)) << endl;
+  
+  // prove <begin()>, <end()> and <get_file()> by finding the word "is"
+  QueryResult result = tq.query(string("is"));
+  for (auto it = result.begin(); it != result.end(); ++it) {
+    cout << "found on line " << (*it+1) << endl;
   }
+
+  auto f = result.get_file();
+  cout << "line 1 content: " << (*f)[0] << endl;
 }
 
+// QueryResult operations
+set<size_t>::iterator QueryResult::begin() {
+  return lines->begin();
+}
 
+set<size_t>::iterator QueryResult::end() {
+  return lines->end();
+}
+
+shared_ptr<vector<string>> QueryResult::get_file() {
+  return file;
+}
 
 int main() {
   ifstream infile("exercise12_30_input.txt");
