@@ -16,6 +16,8 @@ public:
   HasPtr& operator=(const HasPtr&);
   ~HasPtr() { delete ps; }
 
+  string& get_str() { return *ps; }
+
 private:
   string* ps;
   int i;
@@ -34,7 +36,18 @@ inline void swap(HasPtr& lhs, HasPtr& rhs) {
   // NOTE: this means std::swap() is a fallback
   // we PRIORITIZE swap(a,b) if a, b is of a NOT-BUILT-IN type
   // here it might not make a difference
+  cout << "Using swap!\n";
   using std::swap;
   swap(lhs.ps, rhs.ps);
   swap(lhs.i, rhs.i);
+}
+
+int main() {
+  HasPtr a("Hello");
+  HasPtr b("world");
+  cout << "Before swap: " << a.get_str() << " " << b.get_str() << endl;
+
+  swap(a, b);
+  cout << "After swap: " << a.get_str() << " " << b.get_str() << endl;
+  return 0;
 }
