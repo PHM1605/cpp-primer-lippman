@@ -4,12 +4,31 @@
 
 using namespace std;
 
-class Folder {
+class Message;
 
+class Folder {
+  friend class Message;
+  friend void swap(Message&, Message&);
+
+public:
+  Folder() = default;
+  Folder(const Folder&);
+  Folder& operator=(const Folder&);
+  ~Folder();
+
+private:
+  set<Message*> messages;
+  
+  void addMsg(Message* m) { messages.insert(m); }
+  void remMsg(Message* m) { messages.erase(m); }
+  // change parent Folder of all Messages
+  void add_to_Messages(const Folder& f);
+  void remove_from_Messages();
 };
 
 class Message {
-friend class Folder;
+  friend class Folder;
+  friend void swap(Message&, Message&); 
 public:
   // constructors
   explicit Message(const string& str = ""):
@@ -62,11 +81,65 @@ Message::Message(const Message& m):
   add_to_Folders(m); // add this message to all Folders
 }
 
-// destructor
+// copy assignment
+Message& Message::operator=(const Message& rhs) {
+  // remove left-hand message from all folders
+  remove_from_Folders();
+  contents = rhs.contents;
+  folders = rhs.folders;
+  add_to_Folders(rhs);
+  return *this;
+}
+
+// destructor of Message
 Message::~Message() {
   remove_from_Folders();
 }
 
+void Folder::remove_from_Messages() {
+  for (auto m: messages) {
+    m->folders.erase(this);
+  }
+  messages.clear();
+}
+
+// destructor of Folder
+Folder::~Folder() {
+  remove_from_Messages();
+}
+
+void swap(Message& lhs, Message& rhs) {
+  using std::swap;
+  // remove left-hand-message
+  for (auto f: lhs.folders) {
+    f->remMsg(&lhs);
+  }
+  // remove right-hand-message
+  for (auto f: rhs.folders) {
+    f->remMsg(&rhs);
+  }
+  // swap two messages
+  swap(lhs.folders, rhs.folders);
+  swap(lhs.contents, rhs.contents);
+  // add messages to corresponding folders
+  for (auto f: lhs.folders)
+    f->addMsg(&lhs);
+  for (auto f: rhs.folders)
+    f->addMsg(&rhs);
+}
+
 int main() {
+  Message m1("hello");
+  Message m2("world");
+
+  Folder f1;
+  Folder f2;
+
+  // f1: only has m1
+  // f2: has m1 and m2
+  m1.save(f1);
+  m1.save(f2);
+  m2.save(f2);
+
   return 0;
 }
