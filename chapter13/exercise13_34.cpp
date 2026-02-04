@@ -51,7 +51,13 @@ private:
   set<Folder*> folders; // Folders that has this message
   void add_to_Folders(const Message&); // add this <Message> to ALL Folders
   void remove_from_Folders(); // remove this <Message> from ALL Folders
+
+  // add a <Folder> to list of Folders of this Message
+  void addFolder(Folder* f) { folders.insert(f); }
+  void remFolder(Folder* f) { folders.erase(f); }
 };
+
+// =========================== MESSAGE ===============================
 
 void Message::save(Folder& f) {
   folders.insert(&f); // add current folder to message's folders
@@ -100,7 +106,7 @@ Message::~Message() {
   remove_from_Folders();
 }
 
-
+// ==================================================================
 
 // =========================== FOLDER ===============================
 Folder::Folder(const Folder& f):
@@ -121,12 +127,14 @@ Folder::~Folder() {
   remove_from_Messages();
 }
 
+// add <this-folder> to all <messages>
 void Folder::add_to_Messages(const Folder& f) {
   for (auto m: f.messages) {
     m->folders.insert(this);
   }
 }
 
+// remove <this-folder> from all <messages>
 void Folder::remove_from_Messages() {
   for (auto m: messages) {
     m->folders.erase(this);
