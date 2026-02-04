@@ -1,6 +1,7 @@
 // Write a <Folder> and <Message> class
 #include <iostream>
 #include <set>
+#include <string>
 
 using namespace std;
 
@@ -9,7 +10,7 @@ class Message;
 class Folder {
   friend class Message;
   friend void swap(Message&, Message&);
-
+  friend void print(const Folder&);
 public:
   Folder() = default;
   Folder(const Folder&);
@@ -29,6 +30,8 @@ private:
 class Message {
   friend class Folder;
   friend void swap(Message&, Message&); 
+  friend void print(const Message&);
+  friend void print(const Folder&);
 public:
   // constructors
   explicit Message(const string& str = ""):
@@ -72,6 +75,7 @@ void Message::remove_from_Folders() {
   for (auto f: folders) {
     f->remMsg(this);
   }
+  folders.clear();
 }
 
 // copy constructor
@@ -96,6 +100,33 @@ Message::~Message() {
   remove_from_Folders();
 }
 
+
+
+// =========================== FOLDER ===============================
+Folder::Folder(const Folder& f):
+  messages(f.messages) {
+    add_to_Messages(f);
+}
+
+Folder& Folder::operator=(const Folder& rhs) {
+  if (this != &rhs) {
+    remove_from_Messages();
+    messages = rhs.messages;
+    add_to_Messages(rhs);
+  }
+  return *this;
+}
+
+Folder::~Folder() {
+  remove_from_Messages();
+}
+
+void Folder::add_to_Messages(const Folder& f) {
+  for (auto m: f.messages) {
+    m->folders.insert(this);
+  }
+}
+
 void Folder::remove_from_Messages() {
   for (auto m: messages) {
     m->folders.erase(this);
@@ -103,10 +134,7 @@ void Folder::remove_from_Messages() {
   messages.clear();
 }
 
-// destructor of Folder
-Folder::~Folder() {
-  remove_from_Messages();
-}
+// ====================================================================
 
 void swap(Message& lhs, Message& rhs) {
   using std::swap;
@@ -128,6 +156,21 @@ void swap(Message& lhs, Message& rhs) {
     f->addMsg(&rhs);
 }
 
+void print(const Message& m) {
+  cout << "Message \"" << m.contents << "\" in folders: ";
+  for (auto f: m.folders)
+    cout << f << " ";
+  cout << endl;
+}
+
+void print(const Folder& f) {
+  cout << "Folder " << &f << " has messages: ";
+  for (auto m: f.messages) {
+    cout << "\"" << m->contents << "\" ";
+  }
+  cout << endl;
+}
+
 int main() {
   Message m1("hello");
   Message m2("world");
@@ -140,6 +183,20 @@ int main() {
   m1.save(f1);
   m1.save(f2);
   m2.save(f2);
+
+  cout << "=== BEFORE swap ===\n";
+  print(m1);
+  print(m2);
+  print(f1);
+  print(f2);
+
+  swap(m1, m2); // now f1 has m2; f2 has m1 and m2
+
+  cout << "\n=== AFTER swap ===\n";
+  print(m1);
+  print(m2);
+  print(f1);
+  print(f2);
 
   return 0;
 }
