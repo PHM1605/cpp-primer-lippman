@@ -84,6 +84,25 @@ StrVec& StrVec::operator=(const StrVec& rhs) {
   return *this;
 }
 
+void StrVec::reallocate() {
+  // every time reallocating we double the size; if no size yet then allocate 1
+  auto newcapacity = size() ? 2*size() : 1; 
+  auto newdata = alloc.allocate(newcapacity);
+  
+  // move all elements from old array to new location
+  auto dest = newdata; // start of new location
+  auto elem = elements; // start of old array
+  for (size_t i=0; i!=size(); ++i) {
+    alloc.construct(dest++, std::move(*elem++)); // NOTE: <move-constructor> here
+  }
+  // still, we must free the old one
+  free();
+  // update our old object to point to new elements
+  elements = newdata;
+  first_free = dest;
+  cap = elements + newcapacity;
+}
+
 int main() {
   return 0;
 }
