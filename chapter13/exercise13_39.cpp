@@ -4,11 +4,13 @@
 
 using namespace std;
 
+
 class StrVec {
 public:
   StrVec():
     elements(nullptr), first_free(nullptr), cap(nullptr) {}
   StrVec(const StrVec&); // copy constructor
+  StrVec(const initializer_list<string>); 
   StrVec& operator=(const StrVec&); // copy assignment
   ~StrVec(); // destructor
 
@@ -18,6 +20,11 @@ public:
   
   string* begin() const { return elements; }
   string* end() const { return first_free; }
+
+  // some functionalities
+  void reserve(size_t n);
+  void resize(size_t);
+  void resize(size_t, const string&);
 
 private:
   static allocator<string> alloc;
@@ -37,6 +44,8 @@ private:
 
   void free(); // destroy elements and free space
 };
+
+allocator<string> StrVec::alloc;
 
 void StrVec::push_back(const string& s) {
   // make sure there is room for another element
@@ -67,6 +76,12 @@ void StrVec::free() {
 // Copy constructor
 StrVec::StrVec(const StrVec &s) {
   auto newdata = alloc_n_copy(s.begin(), s.end());
+  elements = newdata.first;
+  first_free = cap = newdata.second;
+}
+// Constructor with <initializer_list>
+StrVec::StrVec(const initializer_list<string> ils) {
+  auto newdata = alloc_n_copy(ils.begin(), ils.end());
   elements = newdata.first;
   first_free = cap = newdata.second;
 }
@@ -103,6 +118,61 @@ void StrVec::reallocate() {
   cap = elements + newcapacity;
 }
 
+// Some functionalities
+// reserve => allocate <n> elements
+void StrVec::reserve(size_t n) {
+  if (n <= capacity()) 
+    return;
+  // if <n> too big => allocate completely new area and move data there
+  auto newdata = alloc.allocate(n);
+  auto dest = newdata;
+  auto elem = elements;
+  for (size_t i=0; i != size(); i++) {
+    alloc.construct(dest++, move(*elem++));
+  }
+  free();
+  // change object values to that new area
+  elements = newdata;
+  first_free = dest;
+  cap = elements + n;
+}
+
+// <resize>: if less=>truncate; if more=>append default values
+void StrVec::resize(size_t n) {
+  resize(n, string());
+}
+void StrVec::resize(size_t n, const string& s) {
+  // destroy extra elements
+  if (n<size()) {
+    while(first_free != elements+n)
+      alloc.destroy(--first_free);
+  } else if (n>size()) {
+    // allocate if it's too big
+    if (n > capacity())
+      reserve(n);
+    // if bigger but not too big -> construct only
+    while (first_free != elements+n)
+      alloc.construct(first_free++, s);
+  }
+}
+
 int main() {
+  StrVec v;
+  v.push_back("a");
+  v.push_back("b");
+
+  v.reserve(10);
+  cout << "size: " << v.size() << " capacity: " << v.capacity() << endl;
+
+  v.resize(5, "X");
+  cout << "after resize up, size: " << v.size() << endl;
+
+  v.resize(1); // truncate all but the first
+  cout << "after resize down, size: " << v.size() << endl;
+
+  // test <initializer_list>
+  StrVec v2{"hello", "world", "StrVec"};
+  cout << "v2 size: " << v2.size() << " capacity: " << v2.capacity() << endl;
+
   return 0;
 }
