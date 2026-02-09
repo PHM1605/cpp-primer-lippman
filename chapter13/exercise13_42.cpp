@@ -1,6 +1,7 @@
-// Test <TextQuery> and <QueryResult> using <StrVec>
+// Test <TextQuery> and <QueryResult> using <StrVec> (instead of vector<string>)
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <memory>
 #include <set>
 #include <map>
@@ -26,6 +27,9 @@ public:
     if (size() == capacity())
       reallocate();
   }
+
+  string* begin() const { return elements; }
+  string* end() const { return first_free; }
 
 private:
   static allocator<string> alloc;
@@ -55,10 +59,16 @@ private:
 };
 
 class QueryResult {
+friend ostream& print(ostream&, const QueryResult&);
+public:
+  // Constructor
+  QueryResult(string s, shared_ptr<set<size_t>> p, shared_ptr<StrVec> f):
+    sought(s), lines(p), file(f) {}
+
 private:
   string sought; // e.g. "element"
   shared_ptr<set<size_t>> lines; // "element" occurs in which lineS
-  shared_ptr<StrVec> file; // 
+  shared_ptr<StrVec> file; // data - lines of text in a file
 };
 
 // Definitions
@@ -68,9 +78,32 @@ TextQuery::TextQuery(ifstream& is): file(new StrVec) {
   while(getline(is, text)) {
     file->push_back(text);
     int n = file->size() - 1; // current line number
+    // read each line; read each word into <map>
+    istringstream line(text);
+    string word;
+    while (line>>word) {
+      // pointer to set of line-numbers
+      auto& lines = wm[word]; 
+      // if lines is "nullptr" => allocate new set
+      if (!lines) 
+        lines.reset(new set<size_t>);
+      lines->insert(n); // NOTE: insert to <set> keeps unique
+    }
   }
 }
 
+QueryResult TextQuery::query(const string& sought) const {
+  // In case we don't find <sought> => pointer to empty set
+  static shared_ptr<set<size_t>> nodata(new set<size_t>);
+  auto loc = wm.find(sought);
+  if (loc == wm.end())
+    return QueryResult(sought, nodata, file);
+  else 
+    return QueryResult(sought, loc->second, file);
+}
+// ====================================================
+
+// ============== Definitions of StrVec =============== 
 void StrVec::push_back(const string& s) {
   // make sure there is room for another element
   chk_n_alloc();
@@ -108,9 +141,30 @@ void StrVec::free() {
   }
 }
 
+StrVec::~StrVec() {
+  free();
+}
+
+// ================== Aux functions =======================
+ostream& print(ostream& os, const QueryResult& qr) {
+  os << qr.sought << " occurs " << qr.lines->size() << " " << (qr.lines->size() > 1 ? "times" : "time") << endl;
+  for (auto num: *qr.lines) {
+    os << "\t(line " << num+1 << ") " << *(qr.file->begin()+num) << endl;
+  }
+  return os;
+}
+
 void runQueries(ifstream& infile) {
   // parse the .txt file
   TextQuery tq(infile);
+  // interact with user to get word e.g. "element"
+  while(true) {
+    cout << "enter the word to look for, or q to quit: ";
+    string inp_word;
+    if (!(cin >> inp_word) || inp_word=="q")
+      break;
+    print(cout, tq.query(inp_word)) << endl;
+  }
 }
 
 int main() {
