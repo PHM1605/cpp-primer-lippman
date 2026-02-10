@@ -22,6 +22,8 @@ private:
   void free();
 };
 
+allocator<char> String::alloc;
+
 String::String(): 
   elements(nullptr), end(nullptr) {}
 
@@ -53,4 +55,3 @@ int main() {
 
   return 0;
 }
-allocator<char> String::alloc;
