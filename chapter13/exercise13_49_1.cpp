@@ -20,6 +20,19 @@ public:
     // leave <s> in a state that is safe to use destructor
     s.elements = s.first_free = s.cap = nullptr;
   }
+  // NEW: move assignment operator
+  StrVec& StrVec::operator=(StrVec&& rhs) noexcept {
+    // direct test for self-assignment
+    if (this != &rhs) {
+      free();
+      elements = rhs.elements;
+      first_free = rhs.first_free;
+      cap = rhs.cap;
+      // leave rhs in destructible state
+      rhs.elements = rhs.first_free = rhs.cap = nullptr;
+    }
+    return *this;
+  }
   
   size_t size() const { return first_free-elements; }
   size_t capacity() const { return cap-elements; }
