@@ -27,6 +27,7 @@ private:
 
 class Message {
   friend class Folder;
+  friend void print(const Message&);
 public:
   // constructor with string
   explicit Message(const string& str = ""):
@@ -145,6 +146,13 @@ void Message::remove_from_Folders() {
   }
   folders.clear();
 }
+
+void print(const Message& m) {
+  cout << "Message \"" << m.contents << "\" in folders: ";
+  for (auto f: m.folders)
+    cout << f << " ";
+  cout << endl;
+}
 // =================================================
 
 
@@ -154,13 +162,16 @@ int main() {
   Message m1("hello");
   
   m1.save(f1);
+  print(m1);
 
   cout << "\n--- Move constructor ---\n";
   Message m2(std::move(m1));
+  print(m2);
 
   cout << "\n--- Move assignment ---\n";
   Message m3("world");
   m3 = std::move(m2);
+  print(m3);
 
   cout << "\n--- End of main ---\n";
 

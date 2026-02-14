@@ -23,6 +23,8 @@ public:
   string* begin() const { return elements; }
   string* end() const { return first_free; }
 
+  void push_back(const string&);
+
 private:
   static allocator<string> alloc;
 
@@ -97,22 +99,24 @@ StrVec& StrVec::operator=(StrVec&& rhs) noexcept {
 }
 
 void StrVec::reallocate() {
+  cout << "REALLOCATE\n"; 
   // every time reallocating we double the size
   // if no size yet then allocate 1
   auto newcapacity = size() ? 2*size() : 1;
-  auto newdata = alloc.allocate(newcapacity);
+  auto first = alloc.allocate(newcapacity);
 
-  // MOVE all elements from old array to new location
-  auto dest = newdata;
-  auto elem = elements;
-  for (size_t i=0; i!=size(); ++i) {
-    alloc.construct(dest++, std::move(*elem++)); // MOVE-constructor
-  }
+  // MOVE all elements from old array to new location with MOVE iterators
+  auto last = uninitialized_copy(
+    make_move_iterator(begin()),
+    make_move_iterator(end()),
+    first
+  );
+
   // still, we must clean the old ones
   free();
   // update current object info
-  elements = newdata;
-  first_free = dest;
+  elements = first;
+  first_free = last;
   cap = elements + newcapacity;
 }
 
@@ -132,6 +136,11 @@ void StrVec::free() {
   }
 }
 
+void StrVec::push_back(const string& s) {
+  chk_n_alloc();
+  alloc.construct(first_free++, s);
+}
+
 int main() {
   cout << "\n--- Test 1: Move constructor ---\n";
   StrVec v1; 
@@ -141,6 +150,14 @@ int main() {
   StrVec v3;
   StrVec v4;
   v4 = std::move(v3);
+
+  cout << "\n--- Test reallocate ---\n";
+  StrVec v;
+  v.push_back("one"); // capacity 0->1 (REALLOC)
+  v.push_back("two"); // capacity 1->2 (REALLOC)
+  v.push_back("three"); // capacity 2->4 (REALLOC)
+  v.push_back("four"); // NO REALLOC
+  v.push_back("five"); // capacity 4->8 (REALLOC)
 
   return 0;
 }
