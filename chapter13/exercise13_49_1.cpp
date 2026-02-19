@@ -23,7 +23,8 @@ public:
   string* begin() const { return elements; }
   string* end() const { return first_free; }
 
-  void push_back(const string&);
+  void push_back(const string&); // copy version
+  void push_back(string&&); // move version
 
 private:
   static allocator<string> alloc;
@@ -137,8 +138,15 @@ void StrVec::free() {
 }
 
 void StrVec::push_back(const string& s) {
+  cout << "COPY PUSHBACK\n";
   chk_n_alloc();
   alloc.construct(first_free++, s);
+}
+
+void StrVec::push_back(string&& s) {
+  cout << "MOVE PUSHBACK\n";
+  chk_n_alloc();
+  alloc.construct(first_free++, std::move(s));
 }
 
 int main() {
@@ -158,6 +166,12 @@ int main() {
   v.push_back("three"); // capacity 2->4 (REALLOC)
   v.push_back("four"); // NO REALLOC
   v.push_back("five"); // capacity 4->8 (REALLOC)
+
+  cout << "\n--- Test MOVE or COPY push_back() ---\n";
+  StrVec vec;
+  string s = "some string or another";
+  vec.push_back(s);
+  vec.push_back("done");
 
   return 0;
 }
