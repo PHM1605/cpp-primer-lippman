@@ -7,13 +7,24 @@ using namespace std;
 class StrVec {
   friend bool operator==(const StrVec&, const StrVec&);
   friend bool operator<(const StrVec&, const StrVec&);
+  friend ostream& operator<<(ostream&, const StrVec&);
+  
 public:
   StrVec():
     elements(nullptr), first_free(nullptr), cap(nullptr) {}
   StrVec(const initializer_list<string>); 
+  StrVec(const StrVec&); // Copy constructor
+  StrVec& operator=(const StrVec&); // Copy assignment
   ~StrVec(); // destructor
 
+  StrVec& operator=(initializer_list<string>);
+  // 2 subscript operators
+  string& operator[](size_t n) { return elements[n]; }
+  const string& operator[](size_t n) const { return elements[n]; }
+
   void push_back(const string&);
+  size_t size() const { return first_free - elements; }
+  size_t capacity() const { return cap - elements; }
 
 private:
   string* elements; // pointer to 1st 
@@ -25,8 +36,7 @@ private:
   // // copy and assign from a range of 2 pointers
   pair<string*, string*> alloc_n_copy(const string*, const string*);
   void chk_n_alloc();
-  size_t size() const { return first_free - elements; }
-  size_t capacity() const { return cap - elements; }
+  
   void reallocate();
   void free(); // destroy elements and free space
 };
@@ -37,6 +47,20 @@ StrVec::StrVec(const initializer_list<string> ils) {
   auto newdata = alloc_n_copy(ils.begin(), ils.end());
   elements = newdata.first;
   first_free = cap = newdata.second;
+}
+
+StrVec::StrVec(const StrVec& other) {
+  auto data = alloc_n_copy(other.elements, other.first_free);
+  elements = data.first;
+  first_free = cap = data.second;
+}
+
+StrVec& StrVec::operator=(const StrVec& rhs) {
+  auto data = alloc_n_copy(rhs.elements, rhs.first_free);
+  free(); // free the old memory of <this>
+  elements = data.first;
+  first_free = cap = data.second;
+  return *this;
 }
 
 StrVec::~StrVec() {
@@ -89,6 +113,16 @@ void StrVec::free() {
 }
 
 // NEW
+ostream& operator<<(ostream& os, const StrVec& vec) {
+  os << "[";
+  for (size_t i=0; i<vec.size(); ++i) {
+    os << vec.elements[i];
+    if (i+1 != vec.size())
+      os << ", ";
+  }
+  os << "]";
+  return os;
+}
 bool operator==(const StrVec& lhs, const StrVec& rhs) {
   // check same size or not
   if (lhs.size() != rhs.size()) 
@@ -122,6 +156,15 @@ bool operator>(const StrVec& lhs, const StrVec& rhs) {
   return rhs<lhs;
 }
 
+StrVec& StrVec::operator=(initializer_list<string> il) {
+  cout << "initializer_list assignment!\n";
+  auto data = alloc_n_copy(il.begin(), il.end());
+  free();
+  elements = data.first;
+  first_free = cap = data.second;
+  return *this;
+}
+
 int main() {
   StrVec v1 {"hello", "world", "StrVec"};
   StrVec v2 {"hello", "world"};
@@ -136,6 +179,17 @@ int main() {
   cout << "=== Test < and > ===\n";
   cout << "v1>v2 ? " << (v1>v2) << endl; // true
   cout << "v4<v2 ? " << (v2<v1) << endl; // true
+
+  cout << "=== Test initializer_list assignment operator ===\n";
+  StrVec v5;
+  v5 = {"this", "is", "a", "sentence"};
+
+  cout << "=== Test [] operators (const and non-const) ===\n";
+  const StrVec cvec = v5;
+  v5[0] = "THIS";
+  cout << v5 << endl;
+  // cvec[0] = "abc"; // ERROR
+  cout << "Try accessing const element: " << cvec[0] << endl;
 
   return 0;
 }

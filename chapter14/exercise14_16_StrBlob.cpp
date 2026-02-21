@@ -14,6 +14,8 @@ public:
   StrBlob();
   StrBlob(initializer_list<string> il);
 
+  string& operator[](size_t);
+
 private:
   shared_ptr<vector<string>> data;
 };
@@ -40,6 +42,10 @@ bool operator>(const StrBlob& a, const StrBlob& b) {
   return *a.data > *b.data;
 }
 
+string& StrBlob::operator[](size_t n) {
+  return (*data)[n];
+}
+
 int main() {
   cout << "=== Test operator== and operator!= ===\n";
   StrBlob a({"one", "two", "three"});
@@ -54,6 +60,11 @@ int main() {
   cout << "=== Test operator< and operator> ===\n";
   cout << "a>b ? " << (a>b) << endl;
   cout << "b>a ? " << (b>a) << endl;
+
+  cout << "\n=== Test operator[] ===\n";
+  cout << "a[0] before: " << a[0] << endl;
+  a[0] = "ONE";
+  cout << "a[0] after: " << a[0] << endl;
   
   return 0;
 }

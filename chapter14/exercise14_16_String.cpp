@@ -16,6 +16,9 @@ public:
   String(const char* str);
   ~String();
 
+  char& operator[](size_t n) {return elements[n]; }
+  const char& operator[](size_t n) const { return elements[n]; }
+
 private:
   static allocator<char> alloc;
 
@@ -84,6 +87,10 @@ int main() {
   cout << "=== Test < and > ===\n";
   cout << "s1<s2 ? " << (s1<s2) << endl; // false
   cout << "s1>s2 ? " << (s1>s2) << endl; // true
+
+  cout << "\n=== Test [] operator ===\n";
+  s3[0] = 'X';
+  cout << s3 << endl;
 
   return 0;
 }

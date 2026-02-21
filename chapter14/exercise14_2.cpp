@@ -20,6 +20,7 @@ public:
 
   // Overloaded operators
   Sales_data& operator+=(const Sales_data&);
+  Sales_data& operator=(const string&);
 
 private:
   string bookNo;
@@ -39,6 +40,11 @@ double Sales_data::avg_price() const {
 Sales_data& Sales_data::operator+=(const Sales_data& rhs) {
   units_sold += rhs.units_sold;
   revenue += rhs.revenue;
+  return *this;
+}
+
+Sales_data& Sales_data::operator=(const string& isbn_str) {
+  bookNo = isbn_str;
   return *this;
 }
 
@@ -114,6 +120,10 @@ int main() {
   ss3 >> sd3;
   cout << "1 and 3 same? " << (sd3 == sd1) << endl;
   cout << "1 and 2 different? " << (sd2 != sd1) << endl;
+
+  cout << "\n=== Test isbn string assignment ===\n";
+  sd3 = "xxx";
+  cout << "Changed Sales_data 3:\n" << sd3 << endl;
 
   return 0;
 }
