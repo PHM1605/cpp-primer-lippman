@@ -45,7 +45,6 @@ public:
   StrBlobPtr(StrBlob& a, size_t sz=0):
     wptr(a.data), curr(sz) {}
   
-  string& deref() const;
   // Subscript operator
   string& operator[](size_t);
   // Prefix operators
@@ -59,6 +58,9 @@ public:
   StrBlobPtr& operator-=(size_t);
   StrBlobPtr operator+(size_t);
   StrBlobPtr operator-(size_t);
+  // Member access operators
+  string& operator*() const;
+  string* operator->() const;
 
 private:
   size_t curr; // current position within array
@@ -75,11 +77,6 @@ shared_ptr<vector<string>> StrBlobPtr::check(size_t i, const string& msg) const 
   if (i >= ret->size())
     throw out_of_range(msg);
   return ret;
-}
-
-string& StrBlobPtr::deref() const {
-  auto p = check(curr, "derefernce past end");
-  return (*p)[curr];
 }
 
 bool operator==(const StrBlobPtr& lhs, const StrBlobPtr& rhs) {
@@ -135,12 +132,22 @@ StrBlobPtr StrBlobPtr::operator--(int) {
 }
 
 // Arithmetic operators + and -
+StrBlobPtr& StrBlobPtr::operator+=(size_t n) {
+  check(curr+n, "increment past end");
+  curr += n;
+  return *this;
+}
+StrBlobPtr& StrBlobPtr::operator-=(size_t n) {
+  if (n>curr)
+    throw out_of_range("decrement past begin");
+  curr -= n;
+  return *this;
+}
 StrBlobPtr StrBlobPtr::operator+(size_t n) {
   StrBlobPtr ret = *this;
   ret += n;
   return ret;
 }
-
 StrBlobPtr StrBlobPtr::operator-(size_t n) {
   StrBlobPtr ret = *this;
   ret -= n;
@@ -154,6 +161,16 @@ ptrdiff_t operator-(const StrBlobPtr& lhs, const StrBlobPtr& rhs) {
   if (lptr!=rptr)
     throw runtime_error("Subtracting iterators from different StrBlob");
   return static_cast<ptrdiff_t>(lhs.curr) - static_cast<ptrdiff_t>(rhs.curr);
+}
+
+// Member access operators
+string& StrBlobPtr::operator*() const {
+  auto p = check(curr, "dereference past end"); // return pointer to vector
+  return (*p)[curr];
+}
+// NOTE: -> returns ADDRESS of that element
+string* StrBlobPtr::operator->() const {
+  return & this->operator*();
 }
 
 int main() {
@@ -183,16 +200,28 @@ int main() {
 
   cout << "\n=== Test ++ and -- ===\n";
   StrBlobPtr old = p1++;
-  cout << "Old value before ++: " << old.deref() << endl;
-  cout << "New value after --: " << p1.deref() << endl;
+  cout << "Old value before ++: " << (*old) << endl;
+  cout << "New value after --: " << (*p1) << endl;
   StrBlobPtr old2 = p1--;
-  cout << "Old value before --: " << old2.deref() << endl;
-  cout << "New value after --: " << p1.deref() << endl;
+  cout << "Old value before --: " << (*old2) << endl;
+  cout << "New value after --: " << (*p1) << endl;
 
   cout << "\n=== Test arithmetic operator + and - ===\n";
+  StrBlobPtr p6(blob); // points to "one"
+  auto p7 = p6+2;
+  cout << "p6+2: " << (*p7) << endl;
+  auto p8 = p7-1;
+  cout << "p7-1: " << (*p8) << endl;
 
   cout << "\n=== Test pointer different operator ===\n";
+  cout << "p7-p6: " << p7-p6 << endl;
 
+  cout << "\n=== Test member access operators ===\n";
+  StrBlob a1 = {"hi", "bye", "now"};
+  StrBlobPtr p9(a1);
+  *p9 = "okay";
+  cout << p9->size() << endl;
+  cout << (*p9).size() << endl;
   
   return 0;
 }
