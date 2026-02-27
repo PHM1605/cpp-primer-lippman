@@ -14,6 +14,9 @@ public:
     return n*price;
   }
   virtual ~Quote() = default; // NOTE: root of a tree ALWAYS defines virtual destructor
+  virtual void debug() {
+    cout << "bookNo: " << bookNo << "; price: " << price << endl;
+  }
 
 private:
   string bookNo; // ISBN number of this item
@@ -28,6 +31,10 @@ public:
   Bulk_quote(const string& book, double p, size_t qty, double disc):
     Quote(book, p), min_qty(qty), discount(disc) {}
   double net_price(size_t n) const override;
+
+  void debug() override {
+    cout << "bookNo: " << isbn() << "; price: " << price << "; min_qty: " << min_qty << "; discount: " << discount << endl;
+  }
 
 private:
   // minimum purchase for the discount to apply (0 < discount <=1)
@@ -60,6 +67,11 @@ int main() {
 
   cout << "\n=== Bulk Quote (with discount) ===\n";
   print_total(cout, bulk, 15); // discount applied
+
+  // Try debugging functions
+  cout << "\n=== Debug ===\n";
+  basic.debug();
+  bulk.debug();
   
   return 0;
 }
