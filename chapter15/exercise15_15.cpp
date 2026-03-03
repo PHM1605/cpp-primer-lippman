@@ -32,6 +32,9 @@ public:
     Quote(book, price), quantity(qty), discount(disc) {}
   // NOTE: abstract
   double net_price(size_t) const = 0;
+  pair<size_t, double> discount_policy() const {
+    return {quantity, discount};
+  }
 
 private:
   size_t quantity = 0;
