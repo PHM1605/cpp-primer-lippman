@@ -49,6 +49,11 @@ TextQuery::TextQuery(ifstream& is): file(new vector<string>) {
     istringstream line(text);
     string word;
     while (line >> word) {
+      // convert "hair." or "hair," to "hair"
+      word.erase(
+        remove_if(word.begin(), word.end(), [](char c){ return ispunct(c); }),
+        word.end()
+      );
       // lines: alias to a <shared_ptr> to a set of line-numbers
       // nullptr if that "word" not exist
       auto& lines = wm[word];
@@ -232,16 +237,36 @@ QueryResult NotQuery::eval(const TextQuery& text) const {
   return QueryResult(rep(), ret_lines, result.get_file());
 }
 
+void print_query(Query& q, QueryResult& qr) {
+   // display result
+  cout << "Executing Query for: " << q << endl;
+  cout << q << " occurs " << distance(qr.begin(), qr.end()) << " times\n";
+  for (auto iter=qr.begin(); iter!=qr.end(); iter++) {
+    cout << "(line " << *iter << ") " << (*qr.get_file())[*iter] << endl;
+  }
+  cout << endl;
+}
+
 int main() {
   // preprocess input text file
   ifstream infile("exercise15_39_input.txt");
   TextQuery tq(infile);
   // evaluate 
-  Query q = Query("fiery") & Query("bird") | Query("wind");
-  QueryResult qr = q.eval(tq);
-  // display result
-  cout << "Executing Query for: " << q << endl;
-  cout << q << " occurs " << distance(qr.begin(), qr.end()) << " times\n";
+  Query q1 = Query("fiery") & Query("bird") | Query("wind");
+  QueryResult qr1 = q1.eval(tq);
+  print_query(q1, qr1);
+
+  Query q2 = ~Query("Alice");
+  QueryResult qr2 = q2.eval(tq);
+  print_query(q2, qr2);
+
+  Query q3 = Query("hair") | Query("Alice");
+  QueryResult qr3 = q3.eval(tq);
+  print_query(q3, qr3);
+
+  Query q4 = Query("hair") & Query("Alice");
+  QueryResult qr4 = q4.eval(tq);
+  print_query(q4, qr4);
 
   return 0;
 }
