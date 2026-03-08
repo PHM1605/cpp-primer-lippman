@@ -1,0 +1,10 @@
+This is a test file.
+A set element contains only a key.
+Try to add some empty lines to test
+Ok, now our operator will create some elements. But is it good?
+Regardless of whether the element.
+Empty line number 1.
+One more line number 2.
+When we fetch an element from a map, we try to do something else 
+okay now we have nothing anymore, ending.
+If the element is not found, find returns.
