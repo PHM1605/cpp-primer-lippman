@@ -73,9 +73,54 @@ public:
       ctrl = nullptr;
   }
   // copy constructor => increase <count>
+  SharedPtr(const SharedPtr& other):
+    ptr(other.ptr), ctrl(other.ctrl) {
+      if (ctrl) ++ctrl->count;
+    }
   
+  ~SharedPtr() {
+    if (ctrl && --ctrl->count == 0) {
+      ctrl->dispose();
+      delete ctrl;
+    }
+  }
+
+  size_t use_count() const {
+     return ctrl ? ctrl->count : 0;
+  }
+
+  T& operator*() { return *ptr; }
+  T* operator->() const { return ptr; }
 
 private:
   T* ptr;
   ControlBlockBase* ctrl; // can point to ANY deleter ControlBlock<T,D1> or ControlBlock<T,D2>
 };
+
+struct Foo {
+  Foo() { cout << "Foo constructed\n"; }
+  ~Foo() { cout << "Foo destroyed\n"; }
+};
+
+int main() {
+  cout << "\n=== UniquePtr default deleter ===\n";
+  {
+    UniquePtr<Foo> p(new Foo);
+  }
+
+  cout << "\n=== UniquePtr DebugDelete ===\n";
+  {
+    UniquePtr<Foo, DebugDelete> p(new Foo, DebugDelete());
+  }
+
+  cout << "\n=== SharedPtr DebugDelete ===\n";
+  {
+    SharedPtr<Foo> p(new Foo, DebugDelete());
+    SharedPtr<Foo> p2 = p;
+    cout << "use_count = " << p.use_count() << endl;
+  }
+
+  cout << "\nend of program\n";
+
+  return 0;
+}
