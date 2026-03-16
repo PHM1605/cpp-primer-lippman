@@ -1,4 +1,4 @@
-// Rewrite an advance bookstoreS program with <findBook> function - using TUPLE
+// Rewrite an advance bookstoreS program with <findBook> function - using PAIR
 #include <iostream>
 #include <vector>
 #include <algorithm>
@@ -47,11 +47,12 @@ Sales_data operator+(const Sales_data& lhs, const Sales_data& rhs) {
 }
 
 // matches: tuple of "store index", 2 "iterators" of matched ISBN
-typedef tuple<
+typedef pair<
   size_t,
-  vector<Sales_data>::const_iterator,
-  vector<Sales_data>::const_iterator
-> matches; 
+  pair<
+    vector<Sales_data>::const_iterator,
+    vector<Sales_data>::const_iterator>
+  > matches; 
 
 // files: all stores' transactions
 vector<matches> findBook(const vector<vector<Sales_data>> &files, const string& book) {
@@ -61,7 +62,9 @@ vector<matches> findBook(const vector<vector<Sales_data>> &files, const string& 
     // find the range of Sales_data that have the same ISBN
     auto found = equal_range(it->cbegin(), it->cend(), Sales_data(book,0,0), compareIsbn);
     if (found.first != found.second) {
-      ret.push_back(make_tuple(it-files.cbegin(), found.first, found.second));
+      ret.push_back(
+        make_pair(it-files.cbegin(), make_pair(found.first, found.second))
+      );
     }
   }
   return ret;
@@ -77,8 +80,12 @@ void reportResults(istream& in, ostream& os, const vector<vector<Sales_data>>& f
     }
     // for every store with a sale
     for (const auto& store: trans) {
-      os << "store " << get<0>(store) << " sales: " 
-        << accumulate(get<1>(store), get<2>(store), Sales_data(s)) << endl;
+      os << "store " << store.first << " sales: " 
+        << accumulate(
+          store.second.first,
+          store.second.second,
+          Sales_data(s)) 
+        << endl;
     }
   }
 }

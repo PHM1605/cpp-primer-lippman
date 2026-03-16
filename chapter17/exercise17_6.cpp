@@ -1,4 +1,5 @@
-// Rewrite an advance bookstoreS program with <findBook> function - using TUPLE
+// Rewrite an advance bookstoreS program with <findBook> function - do NOT use TUPLE or PAIR
+//  => we define a struct <Match> to store matching info
 #include <iostream>
 #include <vector>
 #include <algorithm>
@@ -25,6 +26,12 @@ private:
   double revenue = 0.0;
 };
 
+struct Match {
+  size_t store;
+  vector<Sales_data>::const_iterator begin;
+  vector<Sales_data>::const_iterator end;
+};
+
 bool compareIsbn(const Sales_data& sd1, const Sales_data& sd2) {
   return sd1.isbn() < sd2.isbn();
 }
@@ -46,22 +53,19 @@ Sales_data operator+(const Sales_data& lhs, const Sales_data& rhs) {
   return sum;
 }
 
-// matches: tuple of "store index", 2 "iterators" of matched ISBN
-typedef tuple<
-  size_t,
-  vector<Sales_data>::const_iterator,
-  vector<Sales_data>::const_iterator
-> matches; 
-
 // files: all stores' transactions
-vector<matches> findBook(const vector<vector<Sales_data>> &files, const string& book) {
-  vector<matches> ret;
+vector<Match> findBook(const vector<vector<Sales_data>> &files, const string& book) {
+  vector<Match> ret;
   // for each store find range of matching books, if any
   for (auto it=files.cbegin(); it!=files.cend(); ++it) {
     // find the range of Sales_data that have the same ISBN
     auto found = equal_range(it->cbegin(), it->cend(), Sales_data(book,0,0), compareIsbn);
     if (found.first != found.second) {
-      ret.push_back(make_tuple(it-files.cbegin(), found.first, found.second));
+      Match m;
+      m.store = it-files.cbegin();
+      m.begin = found.first;
+      m.end = found.second;
+      ret.push_back(m);
     }
   }
   return ret;
@@ -77,8 +81,12 @@ void reportResults(istream& in, ostream& os, const vector<vector<Sales_data>>& f
     }
     // for every store with a sale
     for (const auto& store: trans) {
-      os << "store " << get<0>(store) << " sales: " 
-        << accumulate(get<1>(store), get<2>(store), Sales_data(s)) << endl;
+      os << "store " << store.store << " sales: " 
+        << accumulate(
+          store.begin,
+          store.end,
+          Sales_data(s)) 
+        << endl;
     }
   }
 }
