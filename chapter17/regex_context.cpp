@@ -18,7 +18,12 @@ int main() {
   regex r(pattern, regex::icase);
 
   for (sregex_iterator it(file.begin(), file.end(), r), end_it; it!=end_it; ++it) {
-     
+     // it->prefix(): the part BEFORE matched word
+    auto pos = it->prefix().length();
+    pos = pos>10 ? pos-10 : 0;
+    cout << it->prefix().str().substr(pos) // last part of prefix
+      << "\n\t\t>>> " << it->str() << " <<<\n" // matched word
+      << it->suffix().str().substr(0,10) << endl;
   }
   
   return 0;
