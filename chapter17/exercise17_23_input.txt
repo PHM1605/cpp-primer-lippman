@@ -1,0 +1,7 @@
+Valid zipcodes:
+12345-6789
+12567
+
+Invalid zipcodes:
+12345-
+123
