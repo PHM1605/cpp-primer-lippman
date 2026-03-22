@@ -2,6 +2,7 @@
 #include <iostream>
 #include <iomanip>
 #include <cmath>
+#include <sstream>
 
 using namespace std;
 
@@ -26,6 +27,11 @@ int main() {
   cout << "hex: " << hex << 20 << " " << 1024 << endl;
   cout << "decimal: " << dec << 20 << " " << 1024 << endl;
   cout << noshowbase; // reset
+
+  // setbase: set base 8,10 or 16 only
+  cout << "\nsetbase(8): " << setbase(8) << 20 << " " << 1024 << endl;
+  cout << "setbase(16): " << setbase(16) << 20 << " " << 1024 << endl;
+  cout << "setbase(10): " << setbase(10) << 20 << " " << 1024 << endl;  
 
   // uppercase/nouppercase: enable/disable the display of "capital notation base"
   cout << uppercase << showbase << hex
@@ -56,6 +62,67 @@ int main() {
   cout << endl << 10.0 << endl;
   cout << showpoint << 10.0
     << noshowpoint << endl; // reset
+
+  // setw: space of the next column
+  // left/right: justify in the next column
+  // internal: for negative number => '-' sign on the left, number on the right
+  // setfill: fill column with which special character
+  int i = -16;
+  double d = 3.14159;
+  // check padding
+  cout << "\ni: " << setw(12) << i << "next col\n"
+    << "d: " << setw(12) << d << "next col\n";
+  // padding & left justify & reset to right justify
+  cout << left 
+    << "i: " << setw(12) << i << "next col\n"
+    << "d: " << setw(12) << d << "next col\n"
+    << right; // reset
+  // put '-' to left; digits to right for negative numbers
+  cout << internal 
+    << "i: " << setw(12) << i << "next col\n"
+    << "d: " << setw(12) << d << "next col\n";
+  // padding with '#' char
+  cout << setfill('#')
+    << "i: " << setw(12) << i << "next col\n"
+    << "d: " << setw(12) << d << "next col\n"
+    << setfill(' '); // reset to default gapfiller
+
+  // noskipws: read whitespaces in input streams too
+  // skipws: reset to default
+  istringstream iss1("a b     c\nd");
+  char ch;
+  cout << "\nWith skip whitespaces:\n";
+  while(iss1 >> ch) {
+    cout << ch;
+  }
+  istringstream iss2("a b     c\nd");
+  cout << "\nWithout skip whitespaces:\n";
+  iss2 >> noskipws; // set skip-whitespace of "in-stream"
+  while(iss2 >> ch) {
+    cout << ch;
+  }
+  cin >> skipws; // reset
+
+  // showpos/noshowpos: show '+' sign for positive numbers
+  cout << "\n\nshowpos: " << showpos << 42 << " " << -42 << " " << 0 << endl;
+  cout << "noshowpos: " << noshowpos << 42 << " " << -42 << " " << 0 << endl;
+
+  // unitbuf/nounitbuf: flush buffer IMMEDIATELY after every "cout" (no waiting for \n)
+  cout << unitbuf;
+  cout << "\nunitbuf on: each of these is flushed immediately\n";
+  cout << "line1\n";
+  cout << "line2\n";
+  cout << nounitbuf; //reset
+
+  // flush: manually flush the buffer once
+  cout << "\nflushing now" << flush; // flush to screen WITHOUT \n 
+  cout << " <- no newline before this flush\n";
+
+  // ends: inserts a \0 into a stream
+  ostringstream oss;
+  oss << "hello" << ends << "world"; // "hello\0world"
+  string s = oss.str(); // keep ALL string but will not print after "\0"
+  cout << "\n'ends' test: original string has size " << s.size() << " but print: " << s.c_str() << endl;
 
   return 0;
 }
